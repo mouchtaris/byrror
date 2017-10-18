@@ -6,6 +6,7 @@ BUILDDIR = /tmp/bb
 all:
 	cmake --build "${BUILDDIR}"
 	ln -svf "${BUILDDIR}/compile_commands.json" ./
+	bundler exec ruby add_headers_to_compile_commands.rb
 
 defs:
 	rm -rfv "${BUILDDIR}"

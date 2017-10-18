@@ -1,0 +1,40 @@
+GIT
+  remote: https://github.com/banister/method_source.git
+  revision: a79edca832f7afaf1605d6e198d92d66d77d4d7a
+  specs:
+    method_source (0.8.1)
+
+GIT
+  remote: https://github.com/intridea/hashie.git
+  revision: 59cb1d507c5a0c69af9ab6491066d497c9f952bf
+  specs:
+    hashie (3.5.7)
+
+GIT
+  remote: https://github.com/pry/pry.git
+  revision: 775beeaaf80308e4a31b3909d5e2decbda693b6b
+  specs:
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+
+GIT
+  remote: https://github.com/rubychan/coderay.git
+  revision: e15cf96405177153e1418496a7a8e85beaa679fb
+  specs:
+    coderay (1.1.2.rc1)
+
+GEM
+  specs:
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  coderay!
+  hashie!
+  method_source!
+  pry!
+
+BUNDLED WITH
+   1.16.0.pre.3

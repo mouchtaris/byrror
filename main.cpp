@@ -5,31 +5,72 @@
 #include <list>
 #include <iterator>
 #include <optional>
+#include <type_traits>
 
 #include <with.hpp>
 #include <base.hpp>
 
-template <typename _cont_type>
-struct ContainerStream {
-    using Self = _cont_type;
-    using Element = typename Self::value_type;
+#include <Stream.h>
+#include <ContainerStream.hpp>
 
-    std::optional<Element> head() const 
-        { return atTheEnd() ? std::nullopt : std::make_optional(*current); }
-    ContainerStream<Self> tail() const
-        { return atTheEnd() ? *this : ContainerStream<Self> {std::next(current, 1), end}; }
+using std::begin,
+      std::end;
 
-// private
-    using Iter = typename Self::iterator;
-    inline bool atTheEnd() const { return current == end; }
-    Iter current;
-    Iter const end;
+struct StreamIterEnd_t { } StreamIterEnd;
+
+template <typename _Self>
+struct StreamIter {
+    Stream<_Self> const& s;
+
+    auto operator *() const {
+        return s.head().value();
+    };
+
+    StreamIter<_Self> operator ++() const {
+        return { s.tail() };
+    }
+
+    bool operator == (StreamIterEnd_t) const {
+        return !s.head().has_value();
+    }
 };
 
-int main(int, char**) {
-    std::vector<int> v = { 1, 2, 3, 4, };
-    auto cont = ContainerStream<decltype(v)> { std::begin(v), std::end(v) };
-    for (auto el = cont.head(); el.has_value(); el = cont.tail().head())
-        std::cout << el.value_or(666) << ',';
-    return 0;
+template <typename _Self> StreamIter<_Self> begin(Stream<_Self> const& s) { return { s }; }
+template <typename _Self> StreamIterEnd_t end(Stream<_Self> const&) { return StreamIterEnd; }
+
+//template <typename _Container>
+//auto begin(ContainerStream<_Container> const& s)
+//    -> typename ContainerStream<_Container>::Iter
+//{
+//    return s.current;
+//}
+//
+//template <typename _Container>
+//auto end(ContainerStream<_Container> const& s)
+//    -> typename ContainerStream<_Container>::Iter
+//{
+//    return s.last;
+//}
+
+
+int main(int argc, char** argv) {
+    (void) argc;
+    (void) argv;
+
+    std::vector<int> v { 1, 2, 3, };
+    auto s = stream(v);
+    (void) s;
+
+    auto p = [](auto wat) { std::cout << wat << ','; };
+    auto done = [] { std::cout << std::endl; };
+
+    for (auto el: v) p(el);
+    done();
+
+    for (auto i = begin(s); i != end(s); ++i)
+        p(*i);
+    done();
+
+    // for (auto el: s) p(el);
+    // done();
 }

@@ -7,22 +7,26 @@ project(byrror VERSION 0.0.0 LANGUAGES CXX)
 #       ext/rxcpp/Rx/v2/src/
 #)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+
 set(SOURCE_FILES 
   main.cpp
   src/with.cpp
   src/base.cpp
+  src/Stream.cpp
+  src/ContainerStream.cpp
+  example/iteration.cpp
 )
 
 add_executable(byrror ${SOURCE_FILES})
 
 set_target_properties( byrror
   PROPERTIES
-  EXPORT_COMPILE_COMMANDS ON
   CXX_STANDARD 17
   CXX_STANDARD_REQUIRED YES
   CXX_EXTENSIONS NO
   INCLUDE_DIRECTORIES /home/nikos/op/byrror/include
   COMPILE_FLAGS "-pedantic -Wall -Wextra"
-  CXX_COMPILER /usr/bin/clang++
   C_COMPILER /usr/bin/clang
   )

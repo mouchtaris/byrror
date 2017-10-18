@@ -89,5 +89,5 @@ end
 
 if __FILE__ == $0
   a = augment compile_commands
-  File.open(COMPILE_COMMANDS, 'w') { |fout| fout.write JSON.dump a }
+  File.open(COMPILE_COMMANDS, 'w') { |fout| fout.write JSON.pretty_generate a }
 end

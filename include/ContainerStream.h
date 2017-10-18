@@ -3,6 +3,7 @@
 #include <Stream.h>
 
 #include <vector>
+#include <optional>
 
 template <typename _Container>
 struct ContainerStream {

@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
     for (auto el: v) p(el);
     done();
 
-    for (auto i = begin(s); i != end(s); ++i)
-        p(*i);
-    done();
+    // for (auto i = begin(s); i != end(s); ++i)
+    //     p(*i);
+    // done();
 
     // for (auto el: s) p(el);
     // done();

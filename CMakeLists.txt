@@ -26,7 +26,6 @@ set_target_properties( byrror
   CXX_STANDARD 17
   CXX_STANDARD_REQUIRED YES
   CXX_EXTENSIONS NO
-  INCLUDE_DIRECTORIES /home/nikos/op/byrror/include
   COMPILE_FLAGS "-pedantic -Wall -Wextra"
   C_COMPILER /usr/bin/clang
   )

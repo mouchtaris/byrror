@@ -6,12 +6,12 @@ BUILDDIR = /tmp/bb
 all:
 	cmake --build "${BUILDDIR}"
 	ln -svf "${BUILDDIR}/compile_commands.json" ./
-	bundler exec ruby add_headers_to_compile_commands.rb
+	# bundler exec ruby add_headers_to_compile_commands.rb
 
 defs:
 	rm -rfv "${BUILDDIR}"
 	mkdir -pv "${BUILDDIR}"
-	bash -x -c 'cd ${BUILDDIR} && cmake ${SRCDIR}'
+	bash -x -c 'cd ${BUILDDIR} && cmake -G Ninja ${SRCDIR}'
 
 cclean:
 	rm -rfv CMakeCache.txt

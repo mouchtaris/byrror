@@ -12,11 +12,6 @@ set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 
 set(SOURCE_FILES 
   main.cpp
-  src/with.cpp
-  src/base.cpp
-  src/Stream.cpp
-  src/ContainerStream.cpp
-  example/iteration.cpp
 )
 
 add_executable(byrror ${SOURCE_FILES})

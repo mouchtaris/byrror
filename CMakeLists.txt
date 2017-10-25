@@ -11,7 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 
 set(SOURCE_FILES 
-  main.cpp
+  src/main.cpp
 )
 
 add_executable(byrror ${SOURCE_FILES})

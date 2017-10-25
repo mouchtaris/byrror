@@ -65,8 +65,7 @@ template <typename T> struct stream::StreamOf<std::vector<T>> {
 
 template <typename T> struct stream::StreamOpsConstructorOf<std::vector<T>> {
     struct ctor {
-        template <typename U>
-        stream_of_t<std::vector<T>> operator () (U&& self) const
+        stream_of_t<std::vector<T>> operator () (std::vector<T> const& self) const
             { return { { cbegin(self), cend(self) } }; }
     };
     using type = ctor;

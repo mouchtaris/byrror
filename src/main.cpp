@@ -73,7 +73,7 @@ namespace stream {
 
     template <typename T> auto ops(T&& self) { return constructor<T>()(std::forward<T>(self)); }
 
-    template <typename T> using element_t = typename stream_of_t<T>::Element;
+    template <typename T> using element_t = typename stream_of_t<std::decay_t<T>>::Element;
     template <typename T> using head_t = std::optional<std::reference_wrapper<element_t<T>>>;
 
     template <typename T> head_t<T> head(T&& self) { return ops(std::forward<T>(self)).head(); }
@@ -146,11 +146,23 @@ template <typename T> std::ostream& operator << (std::ostream& o, std::optional<
 }
 
 int main(int, char**) {
-    using namespace container_stream;
-    using pig::pig;
+    using stream::head,
+          stream::tail,
+          pig::pig,
+          pig::pig_move,
+          pig::pig_copy,
+          pig::pig_pod,
+          pig::pig_ref;
 
     std::vector<int> v { 1, 2, 3 };
-    auto ep = IterPack<decltype(cbegin(v))> { cbegin(v), cend(v) };
+
+    std::cout << "hi" << '\n'
+        << head(v) << '\n'
+        << head(tail(v)) << '\n'
+        << head(tail(tail(v))) << '\n'
+        << head(tail(tail(tail(v)))) << '\n'
+        << head(tail(tail(tail(tail(v))))) << '\n'
+        ;
 
     return 0;
 }

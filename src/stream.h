@@ -1,3 +1,5 @@
+#pragma once
+
 #include "pig.h"
 
 #include <optional>
@@ -15,7 +17,7 @@ namespace stream {
 
     template <typename T> using
     stream_of_t =
-        typename StreamOf<T>::type;
+        typename StreamOf<std::decay_t<T>>::type;
 
     template <typename T> struct
     StreamOpsConstructor {
@@ -30,15 +32,16 @@ namespace stream {
 
     template <typename T> using
     constructor_of_t =
-        typename StreamOpsConstructorOf<T>::type;
+        typename StreamOpsConstructorOf<std::decay_t<T>>::type;
 
     template <typename T> auto
     constructor()
-        -> constructor_of_t<std::decay_t<T>>
+        -> constructor_of_t<T>
         { return { }; }
 
     template <typename T> auto
     ops(T&& self)
+        -> stream_of_t<T>
         { return constructor<T>()(std::forward<T>(self)); }
 
     template <typename T> using

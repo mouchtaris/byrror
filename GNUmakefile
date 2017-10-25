@@ -18,3 +18,6 @@ cclean:
 	rm -rfv CMakeFiles/
 	rm -rfv Makefile
 	rm -rfv cmake_install.cmake
+
+run: all
+	/tmp/bb/byrror

@@ -1,3 +1,5 @@
+#include <functional>
+#include <array>
 #include <list>
 #include <tuple>
 #include <optional>
@@ -14,33 +16,65 @@ namespace stream {
           std::next;
 
     //
+    // Stream entrypoints
+    //
+    template <typename T> struct Stream;
+    template <typename T> struct of { using type = Stream<T>; };
+    template <typename T> using of_t = typename of<T>::type;
+    template <typename T> of_t<std::decay_t<T>> ops() { return { }; }
+    template <typename T> auto head(T&& self) { return ops<T>().Head(std::forward<T>(self)); }
+    template <typename T> auto tail(T&& self) { return ops<T>().tail(std::forward<T>(self)); }
+
+    //
     // Iterator stream
     //
     template <typename Iter> using Iters = std::tuple<Iter, Iter>;
-    template <typename I> auto __current(Iters<I> iters)
-        { return get<0>(iters); }
-    template <typename I> auto __end(Iters<I> iters)
-        { return get<1>(iters); }
-    template <typename I> bool __is_end(Iters<I> iters)
-        { return __current(iters) == __end(iters); }
-    //
-    template <typename I> auto head(Iters<I> iters)
-        { return __is_end(iters) ? std::nullopt : std::make_optional(*__current(iters)); }
-    template <typename I> auto tail(Iters<I> iters)
-        { return Iters<I> { next(__current(iters)), __end(iters) }; }
+    template <typename Iter> struct ItersOps {
+        using iterator = Iter;
+        using Iters = stream::Iters<Iter>;
+        iterator begin(Iters iters) const { return get<0>(iters); }
+        iterator end(Iters iters) const { return get<1>(iters); }
+        bool is_end(Iters iters) const { return begin(iters) == end(iters); }
+        Iters next(Iters iters) const { return { std::next(begin(iters)), end(iters) }; }
+    };
+
+    template <typename Iter> struct Stream<Iters<Iter>> {
+        using Ops = ItersOps<Iter>;
+        using Self = typename Ops::Iters;
+        using Element = typename Iter::value_type;
+        Ops __ops() const { return { }; }
+        auto head(Self iters) const
+            -> std::optional<Element> { return *__ops().begin(iters); }
+        auto tail(Self iters) const
+            -> Self { return __ops().is_end(iters) ? iters : __ops().next(iters); }
+
+        const std::function<std::optional<Element> (Self)> Head =
+            [this] (Self iters){ return *__ops().begin(iters); };
+    };
 
     //
     // Container streams
     //
-    template <typename Container> auto __make_iters(Container const& c)
-        -> Iters<typename Container::const_iterator>
-        { return { begin(c), end(c) }; }
+    template <typename Container>
+    struct ContainerStream {
+        using Self = Container;
+        using iterator = typename Self::const_iterator;
+        using Iters = stream::Iters<iterator>;
+        using IterStream = Stream<Iters>;
+        using Element = typename IterStream::Element;
+        static_assert(
+            std::is_same_v<Element, typename Container::value_type>,
+            "failed");
+        Iters __iters(Self const& c) const { return { begin(c), end(c) }; }
+        auto head(Self const& c) const { return stream::head(__iters(c)); }
+        auto tail(Self const& c) const { return stream::tail(__iters(c)); }
 
-#   define DEFINE_CONTAINER_STREAM(CONTAINER)                       \
-    template <typename T> auto head(CONTAINER <T> const& c)         \
-        { return head(__make_iters(c)); }                           \
-    template <typename T> auto tail(CONTAINER <T> const& c)         \
-        { return tail(__make_iters(c)); }
+        const std::function<std::optional<Element> (Self const&)> Head =
+            [this] (Self const& c) { return stream::head(__iters(c)); };
+    };
+
+#   define DEFINE_CONTAINER_STREAM(CONTAINER) \
+        template <typename T> struct Stream<CONTAINER<T>>: public ContainerStream<CONTAINER<T>> { }
     DEFINE_CONTAINER_STREAM(std::vector);
     DEFINE_CONTAINER_STREAM(std::list);
 
@@ -49,21 +83,19 @@ namespace stream {
     // Stream concept
     //
     template <typename T> struct __ConceptChecks {
-        using __head_t = decltype(head(std::declval<T>()));
-        using head = std::is_same<__head_t, __head_t>;
-
-        using __tail_t = decltype(tail(std::declval<T>()));
-        using tail = std::is_same<__tail_t, __tail_t>;
-
-        using is = head;
+        template <typename = 
+            decltype(std::declval<of_t<T>>().head(std::declval<T>()))
+            >
+            using head = std::true_type;
+        template <int = 0> using is = std::true_type;
     };
 
     template <typename T> struct __ConceptAssertions {
-        using Check = __ConceptChecks<T>;
-        CONCEPT_CHECK(head);
+        using Checks = __ConceptChecks<T>;
+        static_assert(Checks::head_type::value, "failed");
     };
 
-    template <typename T> extern constexpr bool is = __ConceptChecks<T>::is::value;
+    template <typename T> extern constexpr bool is = __ConceptChecks<std::decay_t<T>>::template is<>::value;
     template <typename T> constexpr bool is_type_of(T&&) { return is<T>; }
 }
 
@@ -111,22 +143,17 @@ namespace pig {
 template <typename T> std::ostream& operator << (std::ostream& o, std::optional<T>&& opt) {
     return opt.has_value() ? (o << opt.value()) : (o << "<nothing>");
 }
+
 //
 // Stream => C++ Iterable
 //
-template <typename T>
-struct StreamIter {
-
-};
-template <typename T>
-auto begin(T const& stream)
-    -> std::enable_if<stream::is<T>, 
 
 int main(int, char**) {
     using stream::head,
           stream::tail;
     std::vector<int> v = { 1, 2, 3 };
     std::list<int> l = { 4, 5, 6 };
+    std::array<int, 3> a = { { 7, 8, 9 } };
     std::cout
         << pig::pig<const unsigned long long> << '\n'
         << stream::is_type_of(v) << '\n'
@@ -135,6 +162,7 @@ int main(int, char**) {
         << head(l) << '\n'
         << head(tail(v)) << '\n'
         << head(tail(l)) << '\n'
+//        << stream::is_type_of(a) << '\n'
         ;
     return 0;
 }

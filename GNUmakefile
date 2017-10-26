@@ -20,4 +20,4 @@ cclean:
 	rm -rfv cmake_install.cmake
 
 run: all
-	/tmp/bb/byrror
+	/tmp/bb/byrror | tee ./stdout

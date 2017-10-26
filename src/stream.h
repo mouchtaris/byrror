@@ -21,8 +21,9 @@ namespace stream {
 
     template <typename T> struct
     StreamOpsConstructor {
-        stream_of_t<T> operator () (T&& self) const
-            { return { std::forward<T>(self) }; }
+        template <typename U>
+        stream_of_t<T> operator () (U&& self) const
+            { return { std::forward<U>(self) }; }
     };
 
     template <typename T> struct

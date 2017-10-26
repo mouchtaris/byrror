@@ -15,17 +15,6 @@
 
 using std::get;
 
-namespace container_stream {
-    using namespace iter_stream;
-
-    template <typename T> struct is_container: public std::false_type { };
-#   define CONTAINER_IS_CONTAINER(CONTAINER)    \
-        template <typename T> struct is_container<CONTAINER<T>>: public std::true_type { }
-    CONTAINER_IS_CONTAINER(std::vector);
-    CONTAINER_IS_CONTAINER(std::list);
-    CONTAINER_IS_CONTAINER(std::deque);
-}
-
 template <typename T> std::ostream& operator << (std::ostream& o, std::optional<T> opt) {
     return opt.has_value() ? (o << "optional[" << opt.value() << ']') : ( o << "<nothing>" );
 }
@@ -40,14 +29,24 @@ int main(int, char**) {
           pig::pig_ref;
 
     std::vector<int> v { 1, 2, 3 };
+    std::list<unsigned int> l { 5, 6, 7 };
+    std::deque<char> d { 8, 9, 0 };
+    std::set<long long> s { -1, -2, -3, };
 
-    std::cout << "hi" << '\n'
-        << head(v) << '\n'
-        << head(tail(v)) << '\n'
-        << head(tail(tail(v))) << '\n'
-        << head(tail(tail(tail(v)))) << '\n'
-        << head(tail(tail(tail(tail(v))))) << '\n'
-        ;
+    auto printit = [](auto v) {
+        std::cout << "hi" << '\n'
+            << head(v) << '\n'
+            << head(tail(v)) << '\n'
+            << head(tail(tail(v))) << '\n'
+            << head(tail(tail(tail(v)))) << '\n'
+            << head(tail(tail(tail(tail(v))))) << '\n'
+            ;
+    };
+
+    printit(v);
+    printit(l);
+    printit(d);
+    printit(s);
 
     return 0;
 }

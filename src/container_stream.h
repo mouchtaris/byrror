@@ -8,6 +8,20 @@
 #include <deque>
 #include <set>
 
+namespace container_stream  {
+
+    struct
+    ContainerStreamConstructor {
+
+        template <typename Container>
+        auto operator () (Container&& self) const
+            -> stream::stream_of_t<Container>
+            { return { { cbegin(self), cend(self) } }; }
+
+    };
+
+}
+
 namespace stream {
 
 #   define CONTAINER_STREAM_DEFINITION(CONTAINER)               \
@@ -21,15 +35,7 @@ namespace stream {
                                                                 \
         template <typename T> struct                            \
         StreamOpsConstructorOf<CONTAINER<T>> {                  \
-                                                                \
-            struct ContainerStreamConstructor {                 \
-                auto operator () (CONTAINER<T> const& self) const \
-                    -> stream_of_t<CONTAINER<T>>                \
-                    { return { { cbegin(self), cend(self) } }; }\
-            };                                                  \
-                                                                \
-            using type = ContainerStreamConstructor;            \
-                                                                \
+            using type = container_stream::ContainerStreamConstructor; \
         }                                                       \
 
     CONTAINER_STREAM_DEFINITION(std::vector);
